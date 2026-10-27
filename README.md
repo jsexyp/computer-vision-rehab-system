@@ -43,10 +43,18 @@ computer-vision-rehab-system/
 └── docs/
     ├── architecture.md
     ├── hardware-and-wiring.md
-    └── images/
 ```
 
-The documentation files and images can be added as they become available. The MPLAB X project configuration and supporting Microchip USB CDC files are not included.
+The `docs/` directory contains additional architecture and hardware documentation. The complete MPLAB X project configuration and supporting Microchip USB CDC framework files are not included in this repository.
+
+## Demo
+
+The following video demonstrates the real-time computer vision application and its integration with the embedded feedback hardware.
+
+The demonstration includes webcam-based posture assessment, on-screen feedback, LCD status messages, and the Arduino-controlled LED board.
+
+**[Watch the project demonstration on YouTube](https://youtube.com/shorts/BwNQ4mhxnQw?feature=share)**
+
 
 ## Python Application
 
@@ -123,13 +131,13 @@ The PIC18F45K50 acts as the communication bridge between the Python application 
 | UART | 9600 baud | PIC-to-Arduino communication |
 | LCD | 16x2 character display | Visual status feedback |
 
-### MPLAB X Project Setup
+### Build Requirements
 
-The source file `pic/main.c` is provided as a reference for the PIC firmware. Building the firmware requires a compatible MPLAB X project, the appropriate XC8 compiler, the correct PIC18F45K50 device configuration, and the required Microchip USB CDC framework files.
+The provided `pic/main.c` file documents the main firmware logic. Building the firmware requires a compatible MPLAB X project, the appropriate XC8 compiler, the correct PIC18F45K50 device configuration, and the required Microchip USB CDC framework files.
 
-The complete MPLAB X project and its supporting dependencies are not included in this repository, the USB CDC configuration files can be downloaded directly from Microchip Official Site Examples.
+The complete MPLAB X project and supporting dependencies are not included in this repository. Refer to Microchip's official documentation and example projects for the USB CDC framework.
 
-**Implementation note:** The current firmware reads selected characters from the USB receive buffer at fixed indices. USB CDC may deliver data in partial chunks, so the received message format and parsing behavior should be verified when reproducing the demo.
+**Implementation note:** The current firmware reads selected characters from the USB receive buffer at fixed indices. USB CDC data may arrive in partial chunks, so message parsing and buffer handling should be verified when reproducing the demonstration.
 
 ## Arduino LED Controller
 
@@ -155,7 +163,9 @@ The Arduino receives LED control commands from the PIC over a software-based ser
 | Baud rate | 9600 |
 | LED count | 11 |
 
-The current application uses the Arduino as a receiver for commands sent by the PIC. Confirm the actual wiring and common ground before powering the circuit.
+For additional technical details, see [System Architecture](docs/architecture.md) and [Hardware and Wiring](docs/hardware-and-wiring.md).
+
+Verify the actual pin assignments, logic levels, current-limiting resistors, and common ground before reproducing the circuit.
 
 ### Command Format
 
@@ -187,16 +197,38 @@ The Arduino then updates the 11 LED outputs according to the received command.
 
 Refer to the `docs/` directory for additional architecture diagrams, wiring information, and prototype photographs as they are added.
 
-## Limitations and Future Improvements
+## Experimental Thresholds and Limitations
+
+### Experimental Threshold Selection
+
+The posture assessment thresholds used in this project were established experimentally by observing neutral postures in individuals with different body types and adjusting the values based on the results obtained during testing.
+
+These thresholds are **prototype-specific parameters, not universal medical reference values**. Posture measurements can vary with individual anatomy, body proportions, camera placement, viewing angle, and landmark detection accuracy. Therefore, the selected thresholds should be validated before applying the system to different users or rehabilitation exercises.
+
+An initial calibration procedure for each user, ideally guided by a qualified healthcare professional, is a proposed future improvement. Personalized thresholds could help account for individual anatomical differences and reduce false-positive and false-negative classifications.
+
+### Observed Limitations
+
+Testing identified several limitations:
+
+- **Individual variability:** Differences in body proportions affected the measured ear-to-shoulder and trunk-related angles, making a single set of thresholds less suitable for every user.
+- **Landmark occlusion:** During the 180-degree arm position, the elevated arm could partially obscure the shoulder landmark from the side-view camera. This occasionally affected angle calculations and caused incorrect posture classifications.
+- **Camera perspective:** The system relies on MediaPipe Pose landmarks and angle calculations from a single camera view. Changes in viewpoint and landmark estimation can affect measurement accuracy.
+- **Rapid position transitions:** The embedded feedback logic could occasionally retain an intermediate LED pattern when the user changed positions too quickly. Improving serial message handling and state transitions is a potential area for future development.
+
+### Future Improvements
 
 Potential improvements include:
 
-- More robust serial message framing and parsing.
-- Input validation for malformed or incomplete messages.
-- Configurable camera and serial port settings.
-- More extensive testing across lighting conditions and camera positions.
-- Documented hardware wiring and reproducible build instructions.
-- Systematic testing of the relationship between posture classifications and LED patterns.
+- Adding an individualized calibration step.
+- Evaluating posture from multiple camera views.
+- Improving landmark tracking when body parts overlap.
+- Adding validation for incoming serial messages and improving state transitions.
+- Conducting broader testing with more participants and varied camera setups.
+
+### Intended Use
+
+This project is an educational engineering prototype developed to explore real-time computer vision and embedded feedback for rehabilitation exercises. It is **not a certified medical device**, does not establish a clinical diagnosis, and should not replace assessment or guidance from a qualified healthcare professional. Its posture thresholds and feedback behavior require further validation before any clinical use.
 
 ## Disclaimer
 
